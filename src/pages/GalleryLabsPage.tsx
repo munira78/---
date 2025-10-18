@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '../contexts/DataContext';
-import type { GalleryImage } from '../types';
+import type { GalleryImage } from '../types/index';
 import ImageViewer from '../components/ImageViewer';
 
 const GalleryLabsPage: React.FC = () => {
@@ -50,7 +50,7 @@ const GalleryLabsPage: React.FC = () => {
 
   return (
     <div>
-      <h1 className={`text-4xl font-bold text-amber-400 mb-4 pb-4 border-b-2 ${borderColor}`}>المعرض والمعامل</h1>
+      <h1 className={`text-4xl font-bold mb-4 pb-4 border-b-2 ${borderColor}`} style={{ color: siteConfig.primaryColor }}>المعرض والمعامل</h1>
       
       <div className="flex flex-wrap justify-center gap-4 mb-8">
         {filterButtons.map(button => (

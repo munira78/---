@@ -17,6 +17,7 @@ const ContactPage: React.FC = () => {
   const inputBg = theme === 'dark' ? 'bg-slate-700 border-slate-600' : 'bg-gray-100 border-gray-300';
   const inputText = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const labelText = theme === 'dark' ? 'text-gray-300' : 'text-gray-700';
+  const accentColor = siteConfig.pageAccentColors?.contact || '#3b82f6';
 
   const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(contactInfo.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 
@@ -38,10 +39,10 @@ const ContactPage: React.FC = () => {
 
   return (
     <div>
-      <h1 className={`text-4xl font-bold text-amber-400 mb-8 pb-4 border-b-2 ${borderColor}`}>تواصل معنا</h1>
+      <h1 className={`text-4xl font-bold mb-8 pb-4 border-b-2 ${borderColor}`} style={{ color: siteConfig.primaryColor }}>تواصل معنا</h1>
       <div className="grid md:grid-cols-2 gap-12">
         <div className={`${formBg} p-8 rounded-lg border ${borderColor}`}>
-          <h2 className="text-2xl font-semibold text-blue-400 mb-6">أرسل لنا رسالة</h2>
+          <h2 className="text-2xl font-semibold mb-6" style={{ color: accentColor }}>أرسل لنا رسالة</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className={`block text-sm font-medium ${labelText}`}>الاسم الكامل</label>
@@ -62,14 +63,14 @@ const ContactPage: React.FC = () => {
           </form>
         </div>
         <div className={textColor}>
-           <h2 className="text-2xl font-semibold text-blue-400 mb-6">معلومات الاتصال</h2>
+           <h2 className="text-2xl font-semibold mb-6" style={{ color: accentColor }}>معلومات الاتصال</h2>
            <div className="space-y-4">
               <p><strong>العنوان:</strong> {contactInfo.address}</p>
               <p><strong>البريد الإلكتروني:</strong> {contactInfo.email}</p>
               <p><strong>الهاتف:</strong> {contactInfo.phone}</p>
            </div>
            <div className="mt-8">
-              <h3 className="text-xl font-semibold text-blue-400 mb-4">أوقات الدوام</h3>
+              <h3 className="text-xl font-semibold mb-4" style={{ color: accentColor }}>أوقات الدوام</h3>
               <p>{contactInfo.workHours}</p>
            </div>
            <div className={`mt-8 h-64 ${theme === 'dark' ? 'bg-slate-800' : 'bg-gray-200'} rounded-lg overflow-hidden border ${borderColor}`}>

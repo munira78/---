@@ -14,12 +14,14 @@ import {
   SiteConfig,
   Course,
   QuickLink,
+  ReviewableProject,
 } from '../types';
 
 const AdminPage: React.FC = () => {
   const { 
     faculty, addFaculty, updateFaculty, deleteFaculty,
     projects, addProject, updateProject, deleteProject,
+    pendingProjects, approveProject, rejectProject,
     news, addNews, updateNews, deleteNews,
     gallery, addGalleryImage, updateGalleryImage, deleteGalleryImage,
     books, addBook, updateBook, deleteBook,
@@ -30,8 +32,10 @@ const AdminPage: React.FC = () => {
     siteConfig, updateSiteConfig,
   } = useData();
 
-  const [activeTab, setActiveTab] = useState('settings');
+  const [activeTab, setActiveTab] = useState('reviewProjects');
   const [showSuccess, setShowSuccess] = useState(false);
+  // FIX: Add state for success message text and update displaySuccessMessage to accept a custom message
+  const [successMessage, setSuccessMessage] = useState('تم حفظ التغييرات بنجاح!');
   
   // --- Form States ---
   const [facultyForm, setFacultyForm] = useState<Omit<FacultyMember, 'id'>>({ name: '', title: '', imageUrl: '' });
@@ -63,7 +67,8 @@ const AdminPage: React.FC = () => {
 
   const theme = siteConfig.theme || 'dark';
 
-  const displaySuccessMessage = () => {
+  const displaySuccessMessage = (message: string = 'تم حفظ التغييرات بنجاح!') => {
+    setSuccessMessage(message);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 2000);
   };
@@ -451,6 +456,38 @@ const AdminPage: React.FC = () => {
     </div>
   );
 
+  const renderReviewProjectsSection = () => (
+    <div>
+      <h2 className="text-2xl font-semibold text-blue-400 mb-4">مشاريع قيد المراجعة</h2>
+      {pendingProjects.length > 0 ? (
+        <div className="space-y-6">
+          {pendingProjects.map((p) => (
+            <div key={p.id} className={`${sectionClass}`}>
+              <div className="grid md:grid-cols-4 gap-6 items-start">
+                <img src={p.imageUrl} alt={p.title} className={`md:col-span-1 w-full h-40 object-cover rounded border-2 ${borderColor}`} />
+                <div className="md:col-span-3">
+                    <h3 className={`text-xl font-bold ${textWhiteColor}`}>{p.title} <span className="text-base font-normal text-gray-400">({p.year})</span></h3>
+                    <p className="text-amber-400 my-1">{p.studentName}</p>
+                    <p className={`${textColor} my-3`}>{p.description}</p>
+                    <div className={`text-sm border-t ${borderColor} pt-3 mt-3`}>
+                      <p className={textColor}><strong>مقدم الطلب:</strong> {p.submitterName}</p>
+                      <p className={textColor}><strong>البريد الإلكتروني:</strong> {p.submitterEmail}</p>
+                    </div>
+                </div>
+              </div>
+              <div className="flex gap-4 mt-4 pt-4 border-t border-slate-700 justify-end">
+                  <button onClick={() => rejectProject(p.id)} className="bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-500">رفض</button>
+                  <button onClick={() => { approveProject(p.id); displaySuccessMessage('تمت الموافقة على المشروع ونشره بنجاح!'); }} className="bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-500">موافقة ونشر</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className={`${sectionClass} text-center ${textColor}`}>لا توجد مشاريع معلقة للمراجعة حاليًا.</p>
+      )}
+    </div>
+  );
+
   const renderNewsSection = () => (
     <div>
       <h2 className="text-2xl font-semibold text-blue-400 mb-4">إدارة الأخبار والأنشطة</h2>
@@ -557,16 +594,17 @@ const AdminPage: React.FC = () => {
   );
 
   const tabs = [
+    { key: 'reviewProjects', label: 'مشاريع للمراجعة', count: pendingProjects.length },
+    { key: 'projects', label: 'المشاريع' },
+    { key: 'faculty', label: 'هيئة التدريس' },
+    { key: 'library', label: 'المكتبة' },
+    { key: 'news', label: 'الأخبار' },
+    { key: 'gallery', label: 'المعرض والمعامل' },
     { key: 'settings', label: 'إعدادات عامة' },
     { key: 'homepage', label: 'الصفحة الرئيسية' },
     { key: 'about', label: 'نبذة عن القسم' },
     { key: 'curriculum', label: 'المناهج' },
     { key: 'contact', label: 'معلومات التواصل' },
-    { key: 'faculty', label: 'هيئة التدريس' },
-    { key: 'projects', label: 'المشاريع' },
-    { key: 'library', label: 'المكتبة' },
-    { key: 'news', label: 'الأخبار' },
-    { key: 'gallery', label: 'المعرض والمعامل' },
   ];
 
   return (
@@ -578,14 +616,20 @@ const AdminPage: React.FC = () => {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`py-2 px-4 font-semibold transition-colors duration-300 ${activeTab === tab.key ? 'text-amber-400 border-b-2 border-amber-400' : tabTextColor}`}
+            className={`py-2 px-4 font-semibold transition-colors duration-300 relative ${activeTab === tab.key ? 'text-amber-400 border-b-2 border-amber-400' : tabTextColor}`}
           >
             {tab.label}
+            {tab.count > 0 && (
+              <span className="absolute top-0 right-0 -mt-1 -mr-1 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
+                {tab.count}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       <div className="min-h-[400px]">
+        {activeTab === 'reviewProjects' && renderReviewProjectsSection()}
         {activeTab === 'settings' && renderSiteConfigSection()}
         {activeTab === 'homepage' && renderHomePageSection()}
         {activeTab === 'about' && renderAboutPageSection()}
@@ -600,7 +644,7 @@ const AdminPage: React.FC = () => {
 
       {showSuccess && (
         <div className="fixed bottom-8 right-8 bg-green-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg animate-bounce">
-          تم حفظ التغييرات بنجاح!
+          {successMessage}
         </div>
       )}
     </div>
